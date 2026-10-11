@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Repo İstatistikleri</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111827;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 32px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+    }
+    .card {
+      background: #1f2937;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 12px 0;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.2);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+    .stat {
+      background: #0f172a;
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .label {
+      color: #9ca3af;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    .value {
+      font-size: 28px;
+      margin-top: 8px;
+      font-weight: bold;
+    }
+    input, button {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: none;
+      margin: 6px 0;
+    }
+    input {
+      width: 300px;
+      max-width: 100%;
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>GitHub Repo İstatistikleri</h1>
+
+    <div class="card">
+      <label for="username">GitHub kullanıcı adı:</label><br />
+      <input id="username" value="benimprojem" />
+      <button onclick="loadStats()">Yükle</button>
+    </div>
+
+    <div id="loading" class="card" style="display:none;">Yükleniyor...</div>
+
+    <div id="repos" class="grid"></div>
+  </div>
+
+  <script>
+    async function loadStats() {
+      const username = document.getElementById("username").value.trim();
+      if (!username) return alert("GitHub kullanıcı adı giriniz.");
+
+      const loading = document.getElementById("loading");
+      const reposEl = document.getElementById("repos");
+      loading.style.display = "block";
+      reposEl.innerHTML = "";
+
+      try {
+        const res = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`);
+        if (!res.ok) throw new Error("Kullanıcı bulunamadı.");
+
+        const repos = await res.json();
+
+        const stats = repos
+          .filter(r => !r.fork)
+          .map(r => ({
+            name: r.name,
+            stars: r.stargazers_count,
+            forks: r.forks_count,
+            issues: r.open_issues_count,
+            updated: new Date(r.updated_at).toLocaleDateString("tr-TR")
+          }));
+
+        const totalStars = stats.reduce((sum, r) => sum + r.stars, 0);
+        const totalForks = stats.reduce((sum, r) => sum + r.forks, 0);
+        const totalIssues = stats.reduce((sum, r) => sum + r.issues, 0);
+
+        const summary = `
+          <div class="stat">
+            <div class="label">Toplam Repo</div>
+            <div class="value">${stats.length}</div>
+          </div>
+          <div class="stat">
+            <div class="label">Toplam Star</div>
+            <div class="value">${totalStars}</div>
+          </div>
+          <div class="stat">
+            <div class="label">Toplam Fork</div>
+            <div class="value">${totalForks}</div>
+          </div>
+          <div class="stat">
+            <div class="label">Açık Issue</div>
+            <div class="value">${totalIssues}</div>
+          </div>
+        `;
+        reposEl.innerHTML = summary;
+
+        stats.forEach(repo => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <h3>${repo.name}</h3>
+            <div class="grid">
+              <div class="stat"><div class="label">Star</div><div class="value">${repo.stars}</div></div>
+              <div class="stat"><div class="label">Fork</div><div class="value">${repo.forks}</div></div>
+              <div class="stat"><div class="label">Issue</div><div class="value">${repo.issues}</div></div>
+              <div class="stat"><div class="label">Son Update</div><div class="value">${repo.updated}</div></div>
+            </div>
+          `;
+          reposEl.appendChild(card);
+        });
+
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        loading.style.display = "none";
+      }
+    }
+
+    window.onload = () => loadStats();
+  </script>
+</body>
+</html>

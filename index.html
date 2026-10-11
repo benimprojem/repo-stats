@@ -5,145 +5,289 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Repo İstatistikleri</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #111827;
-      color: #e5e7eb;
+    * {
       margin: 0;
-      padding: 32px;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      padding: 20px;
+      font-size: 14px;
     }
     .container {
-      max-width: 1000px;
-      margin: auto;
+      max-width: 1400px;
+      margin: 0 auto;
     }
-    .card {
-      background: #1f2937;
-      border-radius: 12px;
-      padding: 20px;
-      margin: 12px 0;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.2);
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-    }
-    .stat {
-      background: #0f172a;
-      border-radius: 10px;
-      padding: 16px;
-    }
-    .label {
-      color: #9ca3af;
-      font-size: 12px;
-      text-transform: uppercase;
-    }
-    .value {
+    h1 {
       font-size: 28px;
-      margin-top: 8px;
-      font-weight: bold;
+      margin-bottom: 20px;
+      color: #58a6ff;
     }
-    input, button {
-      padding: 10px 12px;
+    .header {
+      background: #161b22;
+      padding: 15px;
       border-radius: 8px;
-      border: none;
-      margin: 6px 0;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
     }
     input {
-      width: 300px;
-      max-width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: #c9d1d9;
+      border-radius: 6px;
+      width: 250px;
     }
     button {
-      background: #3b82f6;
+      padding: 8px 16px;
+      background: #238636;
       color: white;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
+      font-weight: 500;
+    }
+    button:hover {
+      background: #2ea043;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+    .summary-card {
+      background: #161b22;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid #58a6ff;
+      text-align: center;
+    }
+    .summary-label {
+      font-size: 12px;
+      color: #8b949e;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .summary-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #58a6ff;
+    }
+    .repos-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #161b22;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #30363d;
+    }
+    .repos-table thead {
+      background: #0d1117;
+      border-bottom: 1px solid #30363d;
+    }
+    .repos-table th {
+      padding: 12px 15px;
+      text-align: left;
+      font-weight: 600;
+      color: #8b949e;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+    .repos-table td {
+      padding: 12px 15px;
+      border-top: 1px solid #30363d;
+      font-size: 13px;
+    }
+    .repos-table tr:hover {
+      background: #0d1117;
+    }
+    .repo-name {
+      color: #58a6ff;
+      font-weight: 500;
+    }
+    .stat-number {
+      text-align: center;
+      color: #79c0ff;
+      font-weight: 500;
+    }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      font-size: 16px;
+      color: #8b949e;
+    }
+    .error {
+      background: #da3633;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+    .empty {
+      text-align: center;
+      padding: 30px;
+      color: #8b949e;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>GitHub Repo İstatistikleri</h1>
+    <h1>📊 GitHub Repo İstatistikleri</h1>
 
-    <div class="card">
-      <label for="username">GitHub kullanıcı adı:</label><br />
-      <input id="username" value="benimprojem" />
-      <button onclick="loadStats()">Yükle</button>
+    <div class="header">
+      <input id="username" placeholder="GitHub kullanıcı adı" value="benimprojem" />
+      <button onclick="loadStats()">🔄 Yükle</button>
     </div>
 
-    <div id="loading" class="card" style="display:none;">Yükleniyor...</div>
+    <div id="error"></div>
+    <div id="loading" class="loading" style="display:none;">⏳ Yükleniyor...</div>
 
-    <div id="repos" class="grid"></div>
+    <div id="summary" class="summary"></div>
+
+    <div id="repos-container" style="overflow-x: auto;">
+      <table class="repos-table" id="repos" style="display:none;">
+        <thead>
+          <tr>
+            <th>Repo Adı</th>
+            <th>⭐ Star</th>
+            <th>🍴 Fork</th>
+            <th>📋 Issue</th>
+            <th>📥 Clone</th>
+            <th>📅 Son Update</th>
+          </tr>
+        </thead>
+        <tbody id="repos-body"></tbody>
+      </table>
+    </div>
+
+    <div id="empty" class="empty" style="display:none;">Repo bulunamadı</div>
   </div>
 
   <script>
     async function loadStats() {
       const username = document.getElementById("username").value.trim();
-      if (!username) return alert("GitHub kullanıcı adı giriniz.");
+      if (!username) return alert("Lütfen GitHub kullanıcı adı giriniz.");
 
-      const loading = document.getElementById("loading");
+      const errorEl = document.getElementById("error");
+      const loadingEl = document.getElementById("loading");
+      const summaryEl = document.getElementById("summary");
       const reposEl = document.getElementById("repos");
-      loading.style.display = "block";
-      reposEl.innerHTML = "";
+      const reposBodyEl = document.getElementById("repos-body");
+      const emptyEl = document.getElementById("empty");
+
+      errorEl.innerHTML = "";
+      loadingEl.style.display = "block";
+      summaryEl.innerHTML = "";
+      reposEl.style.display = "none";
+      emptyEl.style.display = "none";
 
       try {
-        const res = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`);
+        // Tüm repoları al
+        const res = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`);
         if (!res.ok) throw new Error("Kullanıcı bulunamadı.");
 
-        const repos = await res.json();
+        let repos = await res.json();
+        repos = repos.filter(r => !r.fork); // Fork'ları çıkar
 
-        const stats = repos
-          .filter(r => !r.fork)
-          .map(r => ({
-            name: r.name,
-            stars: r.stargazers_count,
-            forks: r.forks_count,
-            issues: r.open_issues_count,
-            updated: new Date(r.updated_at).toLocaleDateString("tr-TR")
-          }));
+        if (repos.length === 0) {
+          emptyEl.style.display = "block";
+          loadingEl.style.display = "none";
+          return;
+        }
 
-        const totalStars = stats.reduce((sum, r) => sum + r.stars, 0);
-        const totalForks = stats.reduce((sum, r) => sum + r.forks, 0);
-        const totalIssues = stats.reduce((sum, r) => sum + r.issues, 0);
+        // Clone sayılarını al (traffic endpoint'i)
+        const reposWithStats = await Promise.all(
+          repos.map(async (repo) => {
+            let clones = 0;
+            try {
+              // Bu endpoint private repo sahibi tarafından erişilebilir
+              const trafficRes = await fetch(
+                `https://api.github.com/repos/${username}/${repo.name}/traffic/clones`,
+                {
+                  headers: {
+                    'Accept': 'application/vnd.github.v3+json'
+                  }
+                }
+              );
+              if (trafficRes.ok) {
+                const trafficData = await trafficRes.json();
+                clones = trafficData.count || 0;
+              }
+            } catch (e) {
+              // Public repolar için clone bilgisi GenelLikle mevcut değil
+              clones = 0;
+            }
 
-        const summary = `
-          <div class="stat">
-            <div class="label">Toplam Repo</div>
-            <div class="value">${stats.length}</div>
+            return {
+              name: repo.name,
+              url: repo.html_url,
+              stars: repo.stargazers_count,
+              forks: repo.forks_count,
+              issues: repo.open_issues_count,
+              clones: clones,
+              updated: new Date(repo.updated_at).toLocaleDateString("tr-TR")
+            };
+          })
+        );
+
+        // Toplamları hesapla
+        const totalStars = reposWithStats.reduce((sum, r) => sum + r.stars, 0);
+        const totalForks = reposWithStats.reduce((sum, r) => sum + r.forks, 0);
+        const totalIssues = reposWithStats.reduce((sum, r) => sum + r.issues, 0);
+        const totalClones = reposWithStats.reduce((sum, r) => sum + r.clones, 0);
+
+        // Summary render
+        summaryEl.innerHTML = `
+          <div class="summary-card">
+            <div class="summary-label">Toplam Repo</div>
+            <div class="summary-value">${reposWithStats.length}</div>
           </div>
-          <div class="stat">
-            <div class="label">Toplam Star</div>
-            <div class="value">${totalStars}</div>
+          <div class="summary-card">
+            <div class="summary-label">⭐ Star</div>
+            <div class="summary-value">${totalStars}</div>
           </div>
-          <div class="stat">
-            <div class="label">Toplam Fork</div>
-            <div class="value">${totalForks}</div>
+          <div class="summary-card">
+            <div class="summary-label">🍴 Fork</div>
+            <div class="summary-value">${totalForks}</div>
           </div>
-          <div class="stat">
-            <div class="label">Açık Issue</div>
-            <div class="value">${totalIssues}</div>
+          <div class="summary-card">
+            <div class="summary-label">📋 Issue</div>
+            <div class="summary-value">${totalIssues}</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">📥 Clone</div>
+            <div class="summary-value">${totalClones}</div>
           </div>
         `;
-        reposEl.innerHTML = summary;
 
-        stats.forEach(repo => {
-          const card = document.createElement("div");
-          card.className = "card";
-          card.innerHTML = `
-            <h3>${repo.name}</h3>
-            <div class="grid">
-              <div class="stat"><div class="label">Star</div><div class="value">${repo.stars}</div></div>
-              <div class="stat"><div class="label">Fork</div><div class="value">${repo.forks}</div></div>
-              <div class="stat"><div class="label">Issue</div><div class="value">${repo.issues}</div></div>
-              <div class="stat"><div class="label">Son Update</div><div class="value">${repo.updated}</div></div>
-            </div>
-          `;
-          reposEl.appendChild(card);
-        });
+        // Repos tablo
+        reposBodyEl.innerHTML = reposWithStats
+          .sort((a, b) => b.stars - a.stars)
+          .map(repo => `
+            <tr>
+              <td><a href="${repo.url}" target="_blank" class="repo-name">${repo.name}</a></td>
+              <td class="stat-number">${repo.stars}</td>
+              <td class="stat-number">${repo.forks}</td>
+              <td class="stat-number">${repo.issues}</td>
+              <td class="stat-number">${repo.clones}</td>
+              <td>${repo.updated}</td>
+            </tr>
+          `)
+          .join("");
+
+        reposEl.style.display = "table";
 
       } catch (error) {
-        alert(error.message);
+        errorEl.innerHTML = `<div class="error">❌ ${error.message}</div>`;
       } finally {
-        loading.style.display = "none";
+        loadingEl.style.display = "none";
       }
     }
 

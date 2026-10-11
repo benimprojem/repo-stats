@@ -5,135 +5,185 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Repo İstatistikleri</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #0d1117;
       color: #c9d1d9;
-      padding: 20px;
-      font-size: 14px;
+      margin: 0;
+      padding: 24px;
     }
+
     .container {
       max-width: 1400px;
       margin: 0 auto;
     }
+
     h1 {
       font-size: 28px;
-      margin-bottom: 20px;
+      margin: 0 0 20px;
       color: #58a6ff;
     }
+
     .header {
       background: #161b22;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 14px 16px;
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      align-items: center;
+      margin-bottom: 18px;
     }
+
     input {
-      padding: 8px 12px;
-      border: 1px solid #30363d;
+      flex: 1 1 260px;
+      max-width: 320px;
+      min-width: 220px;
+      padding: 10px 12px;
       background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
       color: #c9d1d9;
-      border-radius: 6px;
-      width: 250px;
+      font-size: 14px;
     }
+
     button {
-      padding: 8px 16px;
+      padding: 10px 18px;
       background: #238636;
-      color: white;
+      color: #fff;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
-      font-weight: 500;
+      font-weight: 600;
     }
-    button:hover {
-      background: #2ea043;
-    }
+
+    button:hover { background: #2ea043; }
+
     .summary {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 12px;
-      margin-bottom: 25px;
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
     }
+
     .summary-card {
       background: #161b22;
-      padding: 15px;
-      border-radius: 8px;
+      border: 1px solid #30363d;
       border-left: 4px solid #58a6ff;
+      border-radius: 10px;
+      padding: 18px 16px;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       text-align: center;
     }
+
     .summary-label {
-      font-size: 12px;
       color: #8b949e;
+      font-size: 12px;
       text-transform: uppercase;
+      letter-spacing: 0.06em;
       margin-bottom: 8px;
     }
+
     .summary-value {
-      font-size: 24px;
-      font-weight: bold;
-      color: #58a6ff;
+      color: #79c0ff;
+      font-size: clamp(22px, 2vw, 30px);
+      font-weight: 700;
+      line-height: 1.2;
     }
+
+    .repos-wrap {
+      overflow-x: auto;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+    }
+
     .repos-table {
       width: 100%;
+      min-width: 900px;
       border-collapse: collapse;
-      background: #161b22;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid #30363d;
     }
-    .repos-table thead {
+
+    .repos-table th {
+      text-align: left;
+      padding: 14px 16px;
       background: #0d1117;
+      color: #8b949e;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       border-bottom: 1px solid #30363d;
     }
-    .repos-table th {
-      padding: 12px 15px;
-      text-align: left;
-      font-weight: 600;
-      color: #8b949e;
-      font-size: 13px;
-      text-transform: uppercase;
-    }
+
     .repos-table td {
-      padding: 12px 15px;
+      padding: 14px 16px;
       border-top: 1px solid #30363d;
-      font-size: 13px;
+      font-size: 14px;
+      vertical-align: middle;
+      white-space: nowrap;
     }
-    .repos-table tr:hover {
-      background: #0d1117;
-    }
+
     .repo-name {
       color: #58a6ff;
-      font-weight: 500;
+      text-decoration: none;
+      font-weight: 600;
     }
+
+    .repo-name:hover { text-decoration: underline; }
+
     .stat-number {
       text-align: center;
       color: #79c0ff;
-      font-weight: 500;
+      font-weight: 600;
     }
-    .loading {
+
+    .loading, .empty {
       text-align: center;
-      padding: 40px;
-      font-size: 16px;
+      padding: 26px;
       color: #8b949e;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      margin-top: 12px;
     }
+
     .error {
       background: #da3633;
       color: white;
-      padding: 15px;
-      border-radius: 8px;
-      margin: 10px 0;
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-bottom: 12px;
     }
-    .empty {
-      text-align: center;
-      padding: 30px;
-      color: #8b949e;
+
+    @media (max-width: 980px) {
+      .summary {
+        grid-template-columns: repeat(3, minmax(160px, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .summary {
+        grid-template-columns: repeat(2, minmax(150px, 1fr));
+      }
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 16px; }
+      .summary {
+        grid-template-columns: 1fr;
+      }
+      .header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      input, button {
+        width: 100%;
+        max-width: none;
+      }
     }
   </style>
 </head>
@@ -142,8 +192,8 @@
     <h1>📊 GitHub Repo İstatistikleri</h1>
 
     <div class="header">
-      <input id="username" placeholder="GitHub kullanıcı adı" value="benimprojem" />
-      <button onclick="loadStats()">🔄 Yükle</button>
+      <input id="username" value="benimprojem" placeholder="GitHub kullanıcı adı" />
+      <button onclick="loadStats()">Yükle</button>
     </div>
 
     <div id="error"></div>
@@ -151,7 +201,7 @@
 
     <div id="summary" class="summary"></div>
 
-    <div id="repos-container" style="overflow-x: auto;">
+    <div class="repos-wrap">
       <table class="repos-table" id="repos" style="display:none;">
         <thead>
           <tr>
@@ -173,7 +223,10 @@
   <script>
     async function loadStats() {
       const username = document.getElementById("username").value.trim();
-      if (!username) return alert("Lütfen GitHub kullanıcı adı giriniz.");
+      if (!username) {
+        alert("Lütfen GitHub kullanıcı adı giriniz.");
+        return;
+      }
 
       const errorEl = document.getElementById("error");
       const loadingEl = document.getElementById("loading");
@@ -189,12 +242,11 @@
       emptyEl.style.display = "none";
 
       try {
-        // Tüm repoları al
         const res = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`);
         if (!res.ok) throw new Error("Kullanıcı bulunamadı.");
 
         let repos = await res.json();
-        repos = repos.filter(r => !r.fork); // Fork'ları çıkar
+        repos = repos.filter(r => !r.fork);
 
         if (repos.length === 0) {
           emptyEl.style.display = "block";
@@ -202,26 +254,18 @@
           return;
         }
 
-        // Clone sayılarını al (traffic endpoint'i)
         const reposWithStats = await Promise.all(
           repos.map(async (repo) => {
             let clones = 0;
             try {
-              // Bu endpoint private repo sahibi tarafından erişilebilir
-              const trafficRes = await fetch(
-                `https://api.github.com/repos/${username}/${repo.name}/traffic/clones`,
-                {
-                  headers: {
-                    'Accept': 'application/vnd.github.v3+json'
-                  }
-                }
-              );
+              const trafficRes = await fetch(`https://api.github.com/repos/${username}/${repo.name}/traffic/clones`, {
+                headers: { Accept: "application/vnd.github.v3+json" }
+              });
               if (trafficRes.ok) {
                 const trafficData = await trafficRes.json();
-                clones = trafficData.count || 0;
+                clones = Number(trafficData.count || 0);
               }
             } catch (e) {
-              // Public repolar için clone bilgisi GenelLikle mevcut değil
               clones = 0;
             }
 
@@ -231,19 +275,17 @@
               stars: repo.stargazers_count,
               forks: repo.forks_count,
               issues: repo.open_issues_count,
-              clones: clones,
+              clones,
               updated: new Date(repo.updated_at).toLocaleDateString("tr-TR")
             };
           })
         );
 
-        // Toplamları hesapla
         const totalStars = reposWithStats.reduce((sum, r) => sum + r.stars, 0);
         const totalForks = reposWithStats.reduce((sum, r) => sum + r.forks, 0);
         const totalIssues = reposWithStats.reduce((sum, r) => sum + r.issues, 0);
         const totalClones = reposWithStats.reduce((sum, r) => sum + r.clones, 0);
 
-        // Summary render
         summaryEl.innerHTML = `
           <div class="summary-card">
             <div class="summary-label">Toplam Repo</div>
@@ -267,23 +309,20 @@
           </div>
         `;
 
-        // Repos tablo
         reposBodyEl.innerHTML = reposWithStats
           .sort((a, b) => b.stars - a.stars)
           .map(repo => `
             <tr>
-              <td><a href="${repo.url}" target="_blank" class="repo-name">${repo.name}</a></td>
+              <td><a class="repo-name" href="${repo.url}" target="_blank">${repo.name}</a></td>
               <td class="stat-number">${repo.stars}</td>
               <td class="stat-number">${repo.forks}</td>
               <td class="stat-number">${repo.issues}</td>
               <td class="stat-number">${repo.clones}</td>
               <td>${repo.updated}</td>
             </tr>
-          `)
-          .join("");
+          `).join("");
 
         reposEl.style.display = "table";
-
       } catch (error) {
         errorEl.innerHTML = `<div class="error">❌ ${error.message}</div>`;
       } finally {
@@ -291,7 +330,7 @@
       }
     }
 
-    window.onload = () => loadStats();
+    window.onload = loadStats;
   </script>
 </body>
 </html>

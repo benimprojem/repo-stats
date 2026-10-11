@@ -160,22 +160,16 @@
     }
 
     @media (max-width: 980px) {
-      .summary {
-        grid-template-columns: repeat(3, minmax(160px, 1fr));
-      }
+      .summary { grid-template-columns: repeat(3, minmax(160px, 1fr)); }
     }
 
     @media (max-width: 720px) {
-      .summary {
-        grid-template-columns: repeat(2, minmax(150px, 1fr));
-      }
+      .summary { grid-template-columns: repeat(2, minmax(150px, 1fr)); }
     }
 
     @media (max-width: 480px) {
       body { padding: 16px; }
-      .summary {
-        grid-template-columns: 1fr;
-      }
+      .summary { grid-template-columns: 1fr; }
       .header {
         flex-direction: column;
         align-items: stretch;
@@ -221,6 +215,17 @@
   </div>
 
   <script>
+    // Yerel PC'de çalıştırırken kullanılır.
+    // GitHub Pages'e koyma -> PAT herkese görünür olur.
+    const GITHUB_TOKEN = "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+
+    function headers() {
+      return {
+        "Accept": "application/vnd.github+json",
+        "Authorization": `Bearer ${GITHUB_TOKEN}`
+      };
+    }
+
     async function loadStats() {
       const username = document.getElementById("username").value.trim();
       if (!username) {
@@ -242,8 +247,13 @@
       emptyEl.style.display = "none";
 
       try {
-        const res = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`);
-        if (!res.ok) throw new Error("Kullanıcı bulunamadı.");
+        const res = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`, {
+          headers: headers()
+        });
+
+        if (!res.ok) {
+          throw new Error(`GitHub API hatası: ${res.status}`);
+        }
 
         let repos = await res.json();
         repos = repos.filter(r => !r.fork);
@@ -257,13 +267,19 @@
         const reposWithStats = await Promise.all(
           repos.map(async (repo) => {
             let clones = 0;
+
             try {
-              const trafficRes = await fetch(`https://api.github.com/repos/${username}/${repo.name}/traffic/clones`, {
-                headers: { Accept: "application/vnd.github.v3+json" }
-              });
+              const trafficRes = await fetch(
+                `https://api.github.com/repos/${username}/${repo.name}/traffic/clones`,
+                { headers: headers() }
+              );
+
               if (trafficRes.ok) {
                 const trafficData = await trafficRes.json();
                 clones = Number(trafficData.count || 0);
+              } else if (trafficRes.status === 403) {
+                // Bu repo için traffic verisi yok veya erişim yok
+                clones = 0;
               }
             } catch (e) {
               clones = 0;
